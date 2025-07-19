@@ -19,6 +19,35 @@ export const createFlag = async (req: Request, res: Response) => {
   }
 };
 
+export const toggleFlag = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { enabled } = req.body;
+
+  try {
+    const updatedFlag = await prisma.featureFlag.update({
+      where: { id },
+      data: { enabled },
+    });
+    res.status(200).json(updatedFlag);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to toggle feature flag' });
+  }
+};
+
+export const deleteFlag = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.featureFlag.delete({
+      where: { id },
+    });
+    res.status(200).json({ message: 'Feature flag deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete feature flag' });
+  }
+};
+
+
 export const evaluateFlag = async (req: Request, res: Response) => {
   const { name } = req.params;
   const { userId, env } = req.query;
