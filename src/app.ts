@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import flagRoutes from '../src/routes/flag.routes';
+import flagRoutes from './routes/flag.routes';
 
 dotenv.config();
 const app = express();
