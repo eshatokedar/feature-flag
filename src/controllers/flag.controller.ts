@@ -20,7 +20,7 @@ export const createFlag = async (req: Request, res: Response) => {
 };
 
 export const toggleFlag = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id  = Number(req.params.id);
   const { enabled } = req.body;
 
   try {
@@ -35,7 +35,7 @@ export const toggleFlag = async (req: Request, res: Response) => {
 };
 
 export const deleteFlag = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id  = Number(req.params.id);
 
   try {
     await prisma.featureFlag.delete({
