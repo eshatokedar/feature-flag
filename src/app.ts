@@ -11,6 +11,10 @@ app.use(express.json());
 app.use('/flags', flagRoutes);
 
 const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => {
+  res.send('Feature Flag API is live 🎉');
+});
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
+
