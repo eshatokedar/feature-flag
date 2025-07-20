@@ -10,6 +10,7 @@ export const createFlag = async (req: Request, res: Response) => {
         name,
         enabled,
         rolloutPercentage,
+        // description: description || '',
       },
     });
 
@@ -76,4 +77,113 @@ export const evaluateFlag = async (req: Request, res: Response) => {
 export const getAllFlags = async (_req: Request, res: Response) => {
   const flags = await prisma.featureFlag.findMany();
   res.status(200).json(flags);
+};
+
+export const bulkUpdateFlags = async (req: Request, res: Response) => {
+  try {
+    const { flags } = req.body;
+    
+    if (!Array.isArray(flags)) {
+      return res.status(400).json({ error: 'Flags must be an array' });
+    }
+
+    // Update each flag
+    const updatePromises = flags.map((flag: any) => 
+      prisma.featureFlag.upsert({
+        where: { name: flag.name },
+        update: { 
+          enabled: flag.enabled,
+          // description: flag.description || ''
+        },
+        create: {
+          name: flag.name,
+          enabled: flag.enabled,
+          // description: flag.description || '',
+          rolloutPercentage: 0
+        }
+      })
+    );
+
+    const updatedFlags = await Promise.all(updatePromises);
+    res.status(200).json(updatedFlags);
+  } catch (error) {
+    console.error('Bulk update error:', error);
+    res.status(500).json({ error: 'Failed to update feature flags' });
+  }
+};
+
+export const initializeDefaultFlags = async (_req: Request, res: Response) => {
+  try {
+    const defaultFlags = [
+      {
+        name: 'showWelcomeCard',
+        enabled: true,
+        description: 'Controls the visibility of the main welcome card with star icon'
+      },
+      {
+        name: 'showStatsCard',
+        enabled: false,
+        description: 'Shows/hides the statistics dashboard with user metrics'
+      },
+      {
+        name: 'showPromoBanner',
+        enabled: true,
+        description: 'Displays the promotional banner with special offers'
+      },
+      {
+        name: 'enableDarkMode',
+        enabled: false,
+        description: 'Switches the entire application to dark theme'
+      },
+      {
+        name: 'showNotifications',
+        enabled: true,
+        description: 'Shows notification bell icon in the header'
+      },
+      {
+        name: 'showUserProfile',
+        enabled: false,
+        description: 'Displays user profile information in header'
+      },
+      {
+        name: 'enableNewButton',
+        enabled: true,
+        description: 'Shows the gradient "New Feature Button" with sparkles'
+      },
+      {
+        name: 'showFooter',
+        enabled: true,
+        description: 'Controls footer visibility at bottom of page'
+      },
+      {
+        name: 'showSidebar',
+        enabled: false,
+        description: 'Shows/hides the navigation sidebar'
+      },
+      {
+        name: 'enableAnimations',
+        enabled: true,
+        description: 'Enables hover animations and transitions'
+      }
+    ];
+
+    const createPromises = defaultFlags.map(flag => 
+      prisma.featureFlag.upsert({
+        where: { name: flag.name },
+        update: {},
+        create: {
+          name: flag.name,
+          enabled: flag.enabled,
+          // description: flag.description,
+          rolloutPercentage: 0
+        }
+      })
+    );
+
+    const flags = await Promise.all(createPromises);
+    res.status(200).json(flags);
+  } catch (error) {
+    console.error('Initialize default flags error:', error);
+    res.status(500).json({ error: 'Failed to initialize default flags' });
+  }
 };

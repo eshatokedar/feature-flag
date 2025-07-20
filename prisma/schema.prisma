@@ -11,6 +11,7 @@ model FeatureFlag {
   id                Int      @id @default(autoincrement())
   name              String   @unique
   enabled           Boolean  @default(false)
+  description       String   @default("")
   rolloutPercentage Int      @default(0)
   createdAt         DateTime @default(now())
 }
